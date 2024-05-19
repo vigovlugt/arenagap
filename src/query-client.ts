@@ -17,7 +17,7 @@ export const queryClient = new QueryClient({
     },
 });
 
-const appDataPath = getAppDataPath("arena-cli");
+const appDataPath = getAppDataPath("arenagap");
 const location = join(appDataPath, "query-client.json");
 
 const persister = {
