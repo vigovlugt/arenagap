@@ -1,17 +1,25 @@
 {
-  "name": "arena-counters",
-  "version": "1.0.0",
+  "name": "arenagap",
+  "version": "0.1.0",
   "description": "",
-  "main": "index.js",
-  "type": "module",
+  "main": "./dist/index.js",
+  "bin": "./dist/index.js",
   "scripts": {
-    "dev": "pnpm tsx src/index.ts"
+    "dev": "tsx src/index.ts",
+    "build": "esbuild src/index.ts node_modules/jsdom/lib/jsdom/living/xhr/xhr-sync-worker.js --entry-names=[name] --bundle --platform=node --outdir=dist --external:./xhr-sync-worker.js && sed -i '1i#!/usr/bin/env node' dist/index.js",
+    "build:binary": "pnpm build && node --experimental-sea-config sea-config.json && node -e \"require('fs').copyFileSync(process.execPath, 'arenagap.exe')\" && npx postject arenagap.exe NODE_SEA_BLOB sea-prep.blob ^ --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2 && rm sea-prep.blob && mv ./arenagap.exe ./dist/arenagap.exe",
+    "pub": "pnpm build && pnpm publish"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@swc/cli": "^0.3.12",
+    "@swc/core": "^1.5.7",
     "@types/jsdom": "^21.1.6",
+    "esbuild": "^0.21.3",
+    "nexe": "4.0.0-rc.6",
+    "pkg": "^5.8.1",
     "tsx": "^4.10.5",
     "typescript": "^5.4.5"
   },

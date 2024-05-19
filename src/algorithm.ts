@@ -87,14 +87,6 @@ export function getAnalysisResult(
 
         const matchupRating = enemyMatchupRating - expectedRating;
 
-        if (champion === 8) {
-            console.log({
-                enemy,
-                enemyMatchupRating,
-                expectedRating,
-            });
-        }
-
         matchupMap[enemy] = matchupRating;
     }
 
@@ -116,21 +108,25 @@ export function getAllAnalysisResults(
     dataByChampion: Record<string, LolalyticsData>,
     tierlistData: LolalyticsTierlistData,
     ally: number,
-    enemies: number[]
+    enemies: number[],
+    bans: number[]
 ): Record<string, AnalysisResult> {
     return Object.fromEntries(
         Object.keys(dataByChampion)
-            .filter((c) => Number(c) != ally && !enemies.includes(Number(c)))
+            .map(Number)
+            .filter(
+                (c) => c != ally && !enemies.includes(c) && !bans.includes(c)
+            )
             .map(
-                (champion) =>
+                (c) =>
                     [
-                        champion,
+                        c,
                         getAnalysisResult(
                             dataByChampion,
                             tierlistData,
                             ally,
                             enemies,
-                            Number(champion)
+                            c
                         ),
                     ] as const
             )

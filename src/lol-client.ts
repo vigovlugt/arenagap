@@ -1,4 +1,5 @@
 import { spawnSync } from "child_process";
+import { ChampSelect } from "./champ-select";
 
 const portRegex = /--app-port=([0-9]+)/;
 const passwordRegex = /--remoting-auth-token=([a-zA-Z0-9_-]+)/;
@@ -24,7 +25,7 @@ export function getClientInfo(): ClientInfo {
     const passwordMatch = passwordRegex.exec(stdout);
 
     if (!portMatch || !passwordMatch) {
-        throw new Error("Could not find port or password");
+        throw new Error("Could not find port or password of LCU.");
     }
 
     return {
@@ -34,9 +35,23 @@ export function getClientInfo(): ClientInfo {
     };
 }
 
-export async function fetchLcu(info: ClientInfo, path: string) {
-    const url = `http://127.0.0.1:${info.port}/${path}`;
+export async function fetchChampSelect(info: ClientInfo): Promise<
+    | {
+          errorCode: "RPC_ERROR";
+          httpStatus: 404;
+          implementationDetails: {};
+          message: "No active delegate";
+      }
+    | ChampSelect
+> {
+    return fetchLcu(info, "lol-champ-select/v1/session");
+}
 
+export async function fetchLcu(info: ClientInfo, path: string) {
+    const url = `https://127.0.0.1:${info.port}/${path}`;
+
+    const temp = process.env.NODE_TLS_REJECT_UNAUTHORIZED;
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
     const res = await fetch(url, {
         headers: {
             Authorization: `Basic ${Buffer.from(
@@ -44,6 +59,7 @@ export async function fetchLcu(info: ClientInfo, path: string) {
             ).toString("base64")}`,
         },
     });
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = temp;
 
     const json = await res.json();
     return json;
