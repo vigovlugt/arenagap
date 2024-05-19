@@ -35,7 +35,7 @@ function getRating(
     expectedRating: number = 0
 ): number {
     const wins = winrate * games;
-    const FAKE_GAMES = 0; //500;
+    const FAKE_GAMES = 500;
     const FAKE_WINS = FAKE_GAMES * ratingToWinrate(expectedRating);
 
     const nudgedWinrate = (wins + FAKE_WINS) / (games + FAKE_GAMES);
