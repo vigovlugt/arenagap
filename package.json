@@ -1,0 +1,24 @@
+{
+  "name": "arena-counters",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm tsx src/index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jsdom": "^21.1.6",
+    "tsx": "^4.10.5",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "@tanstack/query-core": "^5.36.1",
+    "@tanstack/query-persist-client-core": "^5.37.1",
+    "appdata-path": "^1.0.0",
+    "jsdom": "^24.0.0"
+  }
+}
