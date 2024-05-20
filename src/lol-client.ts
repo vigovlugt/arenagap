@@ -50,17 +50,29 @@ export async function fetchChampSelect(info: ClientInfo): Promise<
 export async function fetchLcu(info: ClientInfo, path: string) {
     const url = `https://127.0.0.1:${info.port}/${path}`;
 
-    const temp = process.env.NODE_TLS_REJECT_UNAUTHORIZED;
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-    const res = await fetch(url, {
-        headers: {
-            Authorization: `Basic ${Buffer.from(
-                `${info.username}:${info.password}`
-            ).toString("base64")}`,
-        },
-    });
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = temp;
+    let errors = 0;
+    while (true) {
+        try {
+            const temp = process.env.NODE_TLS_REJECT_UNAUTHORIZED;
+            process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+            const res = await fetch(url, {
+                headers: {
+                    Authorization: `Basic ${Buffer.from(
+                        `${info.username}:${info.password}`
+                    ).toString("base64")}`,
+                },
+            });
+            process.env.NODE_TLS_REJECT_UNAUTHORIZED = temp;
 
-    const json = await res.json();
-    return json;
+            const json = await res.json();
+            return json;
+        } catch (e) {
+            if (errors >= 10) {
+                throw e;
+            }
+
+            errors++;
+            await new Promise((r) => setTimeout(r, 500));
+        }
+    }
 }

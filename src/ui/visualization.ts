@@ -1,5 +1,5 @@
-import { AnalysisResult } from "./algorithm";
-import { ratingToWinrate } from "./rating";
+import { AnalysisResult } from "../algorithm";
+import { ratingToWinrate } from "../rating";
 
 function formatRating(rating: number) {
     const winrate = ratingToWinrate(rating);

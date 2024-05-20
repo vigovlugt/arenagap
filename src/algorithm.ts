@@ -90,8 +90,8 @@ export function getAnalysisResult(
         matchupMap[enemy] = matchupRating;
     }
 
-    const totalMatchupRating = Object.values(matchupMap).reduce(
-        (acc, val) => acc + val,
+    const totalMatchupRating = enemies.reduce(
+        (acc, val) => acc + matchupMap[val],
         0
     );
 

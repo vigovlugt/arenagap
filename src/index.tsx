@@ -7,35 +7,40 @@ import {
     versionsQuery,
 } from "./queries";
 import process from "node:process";
-import { visualize } from "./visualization";
 import { fetchChampSelect, getClientInfo } from "./lol-client";
 import { ChampSelect, getAlly, getBans, getEnemies } from "./champ-select";
+import { withFullScreen } from "fullscreen-ink";
+import { App } from "./ui/app";
+import { appStateStore } from "./state";
 
 async function getMatchInfo() {
-    console.log("Connecting to client...");
+    appStateStore.setState({
+        type: "loading",
+        text: "Connecting to client...",
+    });
     let info = null;
     while (true) {
         try {
             info = getClientInfo();
-            console.log("Connected to client.");
             break;
         } catch (e) {
-            console.log("Could not connect to client. Retrying...");
             await new Promise((r) => setTimeout(r, 2000));
         }
     }
 
-    console.log("Fetching champ select...");
-    let i = 0;
-    let j = 0;
+    appStateStore.setState({
+        type: "loading",
+        text: "Loading champ select data...",
+    });
     while (true) {
         let response = await fetchChampSelect(info);
         if ("httpStatus" in response && response.httpStatus === 404) {
-            if (i % 20 === 0) {
-                console.log("Waiting for champ select to start...");
-            }
+            appStateStore.setState({
+                type: "loading",
+                text: "Waiting for champ select to start...",
+            });
+
             await new Promise((r) => setTimeout(r, 500));
-            i++;
             continue;
         }
 
@@ -45,15 +50,13 @@ async function getMatchInfo() {
         const ally = getAlly(champSelect);
         const bans = getBans(champSelect);
         if (enemies.length === 0 || ally === undefined) {
-            if (j % 20 === 0) {
-                console.log("Waiting for enemies or ally to pick...");
-            }
+            appStateStore.setState({
+                type: "loading",
+                text: "Waiting for picks to be revealed...",
+            });
             await new Promise((r) => setTimeout(r, 500));
-            j++;
             continue;
         }
-
-        console.log("Champ select fetched.");
 
         return {
             ally,
@@ -64,8 +67,11 @@ async function getMatchInfo() {
 }
 
 async function run() {
+    appStateStore.setState({
+        type: "loading",
+        text: "Loading lolalytics data...",
+    });
     await restoreClient();
-    console.log("Loading data...");
     const versions = await queryClient.fetchQuery(versionsQuery());
     const ddragonData = await queryClient.fetchQuery(
         championsQuery(versions[0])
@@ -91,7 +97,6 @@ async function run() {
     ]);
 
     await saveClient();
-    console.log("Data loaded.");
 
     // Perform analysis
     // const { enemies, ally, bans } = {
@@ -109,12 +114,25 @@ async function run() {
         bans
     );
 
-    // Visualize results
-    console.log("\n\n");
-    visualize({ analysisResults, ddragonData, ally, bans, enemies });
+    appStateStore.setState({
+        type: "result",
+        ally,
+        bans,
+        enemies,
+        analysisResults,
+    });
+}
+
+async function runUI() {
+    const i = withFullScreen(<App />);
+    await i.start();
+    await i.waitUntilExit();
+}
+
+async function main() {
+    run();
+    await runUI();
     process.exit();
 }
 
-run();
-
-// https://github.com/nexe/nexe
+main();
