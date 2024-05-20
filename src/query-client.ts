@@ -7,7 +7,7 @@ import {
 } from "@tanstack/query-persist-client-core";
 import { join } from "node:path";
 import { writeFile, readFile, rm, mkdir } from "node:fs/promises";
-import getAppDataPath from "appdata-path";
+import { getAppDataPath } from "./appdata";
 
 export const queryClient = new QueryClient({
     defaultOptions: {
@@ -17,7 +17,7 @@ export const queryClient = new QueryClient({
     },
 });
 
-const appDataPath = getAppDataPath("arenagap");
+const appDataPath = join(getAppDataPath(), "arenagap");
 const location = join(appDataPath, "query-client.json");
 
 const persister = {
