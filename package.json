@@ -7,7 +7,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx src/index.tsx",
-    "build": "tsup src/index.tsx --format esm",
+    "build": "tsup src/index.tsx --format esm && sed -i '1i#!/usr/bin/env node' dist/index.js",
     "build:binary": "pnpm build && node --experimental-sea-config sea-config.json && node -e \"require('fs').copyFileSync(process.execPath, 'arenagap.exe')\" && npx postject arenagap.exe NODE_SEA_BLOB sea-prep.blob ^ --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2 && rm sea-prep.blob && mv ./arenagap.exe ./dist/arenagap.exe",
     "pub": "pnpm build && pnpm publish"
   },
